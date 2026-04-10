@@ -1,0 +1,29 @@
+# .gitignore for ap-pb
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Go
+go.sum
+vendor/
+
+# Build & Development
+*.log
+
+# Environment
+.env
+.env.local
