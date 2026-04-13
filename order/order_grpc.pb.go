@@ -8,6 +8,7 @@ package order
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,9 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderService_CreateOrder_FullMethodName           = "/order.OrderService/CreateOrder"
-	OrderService_GetOrderByID_FullMethodName          = "/order.OrderService/GetOrderByID"
-	OrderService_GetOrdersByCustomerID_FullMethodName = "/order.OrderService/GetOrdersByCustomerID"
+	OrderService_CreateOrder_FullMethodName             = "/order.OrderService/CreateOrder"
+	OrderService_GetOrderByID_FullMethodName            = "/order.OrderService/GetOrderByID"
+	OrderService_GetOrdersByCustomerID_FullMethodName   = "/order.OrderService/GetOrdersByCustomerID"
+	OrderService_SubscribeToOrderUpdates_FullMethodName = "/order.OrderService/SubscribeToOrderUpdates"
 )
 
 // OrderServiceClient is the client API for OrderService service.
@@ -36,6 +38,8 @@ type OrderServiceClient interface {
 	GetOrderByID(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 	// GetOrdersByCustomerID retrieves all orders for a customer
 	GetOrdersByCustomerID(ctx context.Context, in *GetOrdersByCustomerRequest, opts ...grpc.CallOption) (*GetOrdersByCustomerResponse, error)
+	// SubscribeToOrderUpdates streams order updates for a specific order
+	SubscribeToOrderUpdates(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (OrderService_SubscribeToOrderUpdatesClient, error)
 }
 
 type orderServiceClient struct {
@@ -76,6 +80,39 @@ func (c *orderServiceClient) GetOrdersByCustomerID(ctx context.Context, in *GetO
 	return out, nil
 }
 
+func (c *orderServiceClient) SubscribeToOrderUpdates(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (OrderService_SubscribeToOrderUpdatesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &OrderService_ServiceDesc.Streams[0], OrderService_SubscribeToOrderUpdates_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &orderServiceSubscribeToOrderUpdatesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// OrderService_SubscribeToOrderUpdatesClient is the client API for SubscribeToOrderUpdates server streaming RPC.
+type OrderService_SubscribeToOrderUpdatesClient interface {
+	Recv() (*Order, error)
+	grpc.ClientStream
+}
+
+type orderServiceSubscribeToOrderUpdatesClient struct {
+	grpc.ClientStream
+}
+
+func (x *orderServiceSubscribeToOrderUpdatesClient) Recv() (*Order, error) {
+	m := new(Order)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
@@ -88,6 +125,8 @@ type OrderServiceServer interface {
 	GetOrderByID(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	// GetOrdersByCustomerID retrieves all orders for a customer
 	GetOrdersByCustomerID(context.Context, *GetOrdersByCustomerRequest) (*GetOrdersByCustomerResponse, error)
+	// SubscribeToOrderUpdates streams order updates for a specific order
+	SubscribeToOrderUpdates(*GetOrderRequest, OrderService_SubscribeToOrderUpdatesServer) error
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -106,6 +145,9 @@ func (UnimplementedOrderServiceServer) GetOrderByID(context.Context, *GetOrderRe
 }
 func (UnimplementedOrderServiceServer) GetOrdersByCustomerID(context.Context, *GetOrdersByCustomerRequest) (*GetOrdersByCustomerResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetOrdersByCustomerID not implemented")
+}
+func (UnimplementedOrderServiceServer) SubscribeToOrderUpdates(*GetOrderRequest, OrderService_SubscribeToOrderUpdatesServer) error {
+	return status.Error(codes.Unimplemented, "method SubscribeToOrderUpdates not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 func (UnimplementedOrderServiceServer) testEmbeddedByValue()                      {}
@@ -182,6 +224,27 @@ func _OrderService_GetOrdersByCustomerID_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_SubscribeToOrderUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
+	in := new(GetOrderRequest)
+	if err := stream.RecvMsg(in); err != nil {
+		return err
+	}
+	return srv.(OrderServiceServer).SubscribeToOrderUpdates(in, &orderServiceSubscribeToOrderUpdatesServer{stream})
+}
+
+type OrderService_SubscribeToOrderUpdatesServer interface {
+	Send(*Order) error
+	grpc.ServerStream
+}
+
+type orderServiceSubscribeToOrderUpdatesServer struct {
+	grpc.ServerStream
+}
+
+func (x *orderServiceSubscribeToOrderUpdatesServer) Send(m *Order) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -202,6 +265,12 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_GetOrdersByCustomerID_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SubscribeToOrderUpdates",
+			Handler:       _OrderService_SubscribeToOrderUpdates_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/order.proto",
 }
