@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v4.25.1
-// source: proto/payment.proto
+// source: payment.proto
 
 package payment
 
@@ -21,7 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// PaymentStatus represents the status of a payment
 type PaymentStatus int32
 
 const (
@@ -55,11 +54,11 @@ func (x PaymentStatus) String() string {
 }
 
 func (PaymentStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_payment_proto_enumTypes[0].Descriptor()
+	return file_payment_proto_enumTypes[0].Descriptor()
 }
 
 func (PaymentStatus) Type() protoreflect.EnumType {
-	return &file_proto_payment_proto_enumTypes[0]
+	return &file_payment_proto_enumTypes[0]
 }
 
 func (x PaymentStatus) Number() protoreflect.EnumNumber {
@@ -68,10 +67,9 @@ func (x PaymentStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PaymentStatus.Descriptor instead.
 func (PaymentStatus) EnumDescriptor() ([]byte, []int) {
-	return file_proto_payment_proto_rawDescGZIP(), []int{0}
+	return file_payment_proto_rawDescGZIP(), []int{0}
 }
 
-// Payment represents a payment transaction
 type Payment struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -79,13 +77,14 @@ type Payment struct {
 	TransactionId string                 `protobuf:"bytes,3,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
 	Amount        int64                  `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	Status        PaymentStatus          `protobuf:"varint,5,opt,name=status,proto3,enum=payment.PaymentStatus" json:"status,omitempty"`
+	CustomerEmail string                 `protobuf:"bytes,6,opt,name=customer_email,json=customerEmail,proto3" json:"customer_email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Payment) Reset() {
 	*x = Payment{}
-	mi := &file_proto_payment_proto_msgTypes[0]
+	mi := &file_payment_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -97,7 +96,7 @@ func (x *Payment) String() string {
 func (*Payment) ProtoMessage() {}
 
 func (x *Payment) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_payment_proto_msgTypes[0]
+	mi := &file_payment_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -110,7 +109,7 @@ func (x *Payment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Payment.ProtoReflect.Descriptor instead.
 func (*Payment) Descriptor() ([]byte, []int) {
-	return file_proto_payment_proto_rawDescGZIP(), []int{0}
+	return file_payment_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Payment) GetId() string {
@@ -148,18 +147,25 @@ func (x *Payment) GetStatus() PaymentStatus {
 	return PaymentStatus_PAYMENT_STATUS_UNSPECIFIED
 }
 
-// CreatePaymentRequest is the request to create a new payment
+func (x *Payment) GetCustomerEmail() string {
+	if x != nil {
+		return x.CustomerEmail
+	}
+	return ""
+}
+
 type CreatePaymentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       string                 `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	Amount        int64                  `protobuf:"varint,2,opt,name=amount,proto3" json:"amount,omitempty"`
+	CustomerEmail string                 `protobuf:"bytes,3,opt,name=customer_email,json=customerEmail,proto3" json:"customer_email,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreatePaymentRequest) Reset() {
 	*x = CreatePaymentRequest{}
-	mi := &file_proto_payment_proto_msgTypes[1]
+	mi := &file_payment_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -171,7 +177,7 @@ func (x *CreatePaymentRequest) String() string {
 func (*CreatePaymentRequest) ProtoMessage() {}
 
 func (x *CreatePaymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_payment_proto_msgTypes[1]
+	mi := &file_payment_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -184,7 +190,7 @@ func (x *CreatePaymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePaymentRequest.ProtoReflect.Descriptor instead.
 func (*CreatePaymentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_payment_proto_rawDescGZIP(), []int{1}
+	return file_payment_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreatePaymentRequest) GetOrderId() string {
@@ -201,7 +207,13 @@ func (x *CreatePaymentRequest) GetAmount() int64 {
 	return 0
 }
 
-// CreatePaymentResponse is the response after creating a payment
+func (x *CreatePaymentRequest) GetCustomerEmail() string {
+	if x != nil {
+		return x.CustomerEmail
+	}
+	return ""
+}
+
 type CreatePaymentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Payment       *Payment               `protobuf:"bytes,1,opt,name=payment,proto3" json:"payment,omitempty"`
@@ -211,7 +223,7 @@ type CreatePaymentResponse struct {
 
 func (x *CreatePaymentResponse) Reset() {
 	*x = CreatePaymentResponse{}
-	mi := &file_proto_payment_proto_msgTypes[2]
+	mi := &file_payment_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -223,7 +235,7 @@ func (x *CreatePaymentResponse) String() string {
 func (*CreatePaymentResponse) ProtoMessage() {}
 
 func (x *CreatePaymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_payment_proto_msgTypes[2]
+	mi := &file_payment_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +248,7 @@ func (x *CreatePaymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreatePaymentResponse.ProtoReflect.Descriptor instead.
 func (*CreatePaymentResponse) Descriptor() ([]byte, []int) {
-	return file_proto_payment_proto_rawDescGZIP(), []int{2}
+	return file_payment_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreatePaymentResponse) GetPayment() *Payment {
@@ -246,7 +258,6 @@ func (x *CreatePaymentResponse) GetPayment() *Payment {
 	return nil
 }
 
-// GetPaymentRequest is the request to retrieve a payment by order ID
 type GetPaymentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       string                 `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
@@ -256,7 +267,7 @@ type GetPaymentRequest struct {
 
 func (x *GetPaymentRequest) Reset() {
 	*x = GetPaymentRequest{}
-	mi := &file_proto_payment_proto_msgTypes[3]
+	mi := &file_payment_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -268,7 +279,7 @@ func (x *GetPaymentRequest) String() string {
 func (*GetPaymentRequest) ProtoMessage() {}
 
 func (x *GetPaymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_payment_proto_msgTypes[3]
+	mi := &file_payment_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -281,7 +292,7 @@ func (x *GetPaymentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPaymentRequest.ProtoReflect.Descriptor instead.
 func (*GetPaymentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_payment_proto_rawDescGZIP(), []int{3}
+	return file_payment_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetPaymentRequest) GetOrderId() string {
@@ -291,7 +302,6 @@ func (x *GetPaymentRequest) GetOrderId() string {
 	return ""
 }
 
-// GetPaymentResponse is the response containing the payment details
 type GetPaymentResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Payment       *Payment               `protobuf:"bytes,1,opt,name=payment,proto3" json:"payment,omitempty"`
@@ -301,7 +311,7 @@ type GetPaymentResponse struct {
 
 func (x *GetPaymentResponse) Reset() {
 	*x = GetPaymentResponse{}
-	mi := &file_proto_payment_proto_msgTypes[4]
+	mi := &file_payment_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -313,7 +323,7 @@ func (x *GetPaymentResponse) String() string {
 func (*GetPaymentResponse) ProtoMessage() {}
 
 func (x *GetPaymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_payment_proto_msgTypes[4]
+	mi := &file_payment_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -326,7 +336,7 @@ func (x *GetPaymentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPaymentResponse.ProtoReflect.Descriptor instead.
 func (*GetPaymentResponse) Descriptor() ([]byte, []int) {
-	return file_proto_payment_proto_rawDescGZIP(), []int{4}
+	return file_payment_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetPaymentResponse) GetPayment() *Payment {
@@ -336,92 +346,203 @@ func (x *GetPaymentResponse) GetPayment() *Payment {
 	return nil
 }
 
-var File_proto_payment_proto protoreflect.FileDescriptor
+type ListPaymentsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MinAmount     int64                  `protobuf:"varint,1,opt,name=min_amount,json=minAmount,proto3" json:"min_amount,omitempty"`
+	MaxAmount     int64                  `protobuf:"varint,2,opt,name=max_amount,json=maxAmount,proto3" json:"max_amount,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
 
-const file_proto_payment_proto_rawDesc = "" +
+func (x *ListPaymentsRequest) Reset() {
+	*x = ListPaymentsRequest{}
+	mi := &file_payment_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPaymentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPaymentsRequest) ProtoMessage() {}
+
+func (x *ListPaymentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_payment_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPaymentsRequest.ProtoReflect.Descriptor instead.
+func (*ListPaymentsRequest) Descriptor() ([]byte, []int) {
+	return file_payment_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListPaymentsRequest) GetMinAmount() int64 {
+	if x != nil {
+		return x.MinAmount
+	}
+	return 0
+}
+
+func (x *ListPaymentsRequest) GetMaxAmount() int64 {
+	if x != nil {
+		return x.MaxAmount
+	}
+	return 0
+}
+
+type ListPaymentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Payments      []*Payment             `protobuf:"bytes,1,rep,name=payments,proto3" json:"payments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPaymentsResponse) Reset() {
+	*x = ListPaymentsResponse{}
+	mi := &file_payment_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPaymentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPaymentsResponse) ProtoMessage() {}
+
+func (x *ListPaymentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_payment_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPaymentsResponse.ProtoReflect.Descriptor instead.
+func (*ListPaymentsResponse) Descriptor() ([]byte, []int) {
+	return file_payment_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListPaymentsResponse) GetPayments() []*Payment {
+	if x != nil {
+		return x.Payments
+	}
+	return nil
+}
+
+var File_payment_proto protoreflect.FileDescriptor
+
+const file_payment_proto_rawDesc = "" +
 	"\n" +
-	"\x13proto/payment.proto\x12\apayment\"\xa3\x01\n" +
+	"\rpayment.proto\x12\apayment\"\xca\x01\n" +
 	"\aPayment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\border_id\x18\x02 \x01(\tR\aorderId\x12%\n" +
 	"\x0etransaction_id\x18\x03 \x01(\tR\rtransactionId\x12\x16\n" +
 	"\x06amount\x18\x04 \x01(\x03R\x06amount\x12.\n" +
-	"\x06status\x18\x05 \x01(\x0e2\x16.payment.PaymentStatusR\x06status\"I\n" +
+	"\x06status\x18\x05 \x01(\x0e2\x16.payment.PaymentStatusR\x06status\x12%\n" +
+	"\x0ecustomer_email\x18\x06 \x01(\tR\rcustomerEmail\"p\n" +
 	"\x14CreatePaymentRequest\x12\x19\n" +
 	"\border_id\x18\x01 \x01(\tR\aorderId\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x03R\x06amount\"C\n" +
+	"\x06amount\x18\x02 \x01(\x03R\x06amount\x12%\n" +
+	"\x0ecustomer_email\x18\x03 \x01(\tR\rcustomerEmail\"C\n" +
 	"\x15CreatePaymentResponse\x12*\n" +
 	"\apayment\x18\x01 \x01(\v2\x10.payment.PaymentR\apayment\".\n" +
 	"\x11GetPaymentRequest\x12\x19\n" +
 	"\border_id\x18\x01 \x01(\tR\aorderId\"@\n" +
 	"\x12GetPaymentResponse\x12*\n" +
-	"\apayment\x18\x01 \x01(\v2\x10.payment.PaymentR\apayment*k\n" +
+	"\apayment\x18\x01 \x01(\v2\x10.payment.PaymentR\apayment\"S\n" +
+	"\x13ListPaymentsRequest\x12\x1d\n" +
+	"\n" +
+	"min_amount\x18\x01 \x01(\x03R\tminAmount\x12\x1d\n" +
+	"\n" +
+	"max_amount\x18\x02 \x01(\x03R\tmaxAmount\"D\n" +
+	"\x14ListPaymentsResponse\x12,\n" +
+	"\bpayments\x18\x01 \x03(\v2\x10.payment.PaymentR\bpayments*k\n" +
 	"\rPaymentStatus\x12\x1e\n" +
 	"\x1aPAYMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19PAYMENT_STATUS_AUTHORIZED\x10\x01\x12\x1b\n" +
-	"\x17PAYMENT_STATUS_DECLINED\x10\x022\xb0\x01\n" +
-	"\x0ePaymentService\x12N\n" +
-	"\rCreatePayment\x12\x1d.payment.CreatePaymentRequest\x1a\x1e.payment.CreatePaymentResponse\x12N\n" +
-	"\x13GetPaymentByOrderID\x12\x1a.payment.GetPaymentRequest\x1a\x1b.payment.GetPaymentResponseB Z\x1epayment-service/pkg/pb/paymentb\x06proto3"
+	"\x17PAYMENT_STATUS_DECLINED\x10\x022\xfe\x01\n" +
+	"\x0ePaymentService\x12O\n" +
+	"\x0eProcessPayment\x12\x1d.payment.CreatePaymentRequest\x1a\x1e.payment.CreatePaymentResponse\x12N\n" +
+	"\x13GetPaymentByOrderID\x12\x1a.payment.GetPaymentRequest\x1a\x1b.payment.GetPaymentResponse\x12K\n" +
+	"\fListPayments\x12\x1c.payment.ListPaymentsRequest\x1a\x1d.payment.ListPaymentsResponseB Z\x1epayment-service/pkg/pb/paymentb\x06proto3"
 
 var (
-	file_proto_payment_proto_rawDescOnce sync.Once
-	file_proto_payment_proto_rawDescData []byte
+	file_payment_proto_rawDescOnce sync.Once
+	file_payment_proto_rawDescData []byte
 )
 
-func file_proto_payment_proto_rawDescGZIP() []byte {
-	file_proto_payment_proto_rawDescOnce.Do(func() {
-		file_proto_payment_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_payment_proto_rawDesc), len(file_proto_payment_proto_rawDesc)))
+func file_payment_proto_rawDescGZIP() []byte {
+	file_payment_proto_rawDescOnce.Do(func() {
+		file_payment_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_payment_proto_rawDesc), len(file_payment_proto_rawDesc)))
 	})
-	return file_proto_payment_proto_rawDescData
+	return file_payment_proto_rawDescData
 }
 
-var file_proto_payment_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_proto_payment_proto_goTypes = []any{
+var file_payment_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_payment_proto_goTypes = []any{
 	(PaymentStatus)(0),            // 0: payment.PaymentStatus
 	(*Payment)(nil),               // 1: payment.Payment
 	(*CreatePaymentRequest)(nil),  // 2: payment.CreatePaymentRequest
 	(*CreatePaymentResponse)(nil), // 3: payment.CreatePaymentResponse
 	(*GetPaymentRequest)(nil),     // 4: payment.GetPaymentRequest
 	(*GetPaymentResponse)(nil),    // 5: payment.GetPaymentResponse
+	(*ListPaymentsRequest)(nil),   // 6: payment.ListPaymentsRequest
+	(*ListPaymentsResponse)(nil),  // 7: payment.ListPaymentsResponse
 }
-var file_proto_payment_proto_depIdxs = []int32{
+var file_payment_proto_depIdxs = []int32{
 	0, // 0: payment.Payment.status:type_name -> payment.PaymentStatus
 	1, // 1: payment.CreatePaymentResponse.payment:type_name -> payment.Payment
 	1, // 2: payment.GetPaymentResponse.payment:type_name -> payment.Payment
-	2, // 3: payment.PaymentService.CreatePayment:input_type -> payment.CreatePaymentRequest
-	4, // 4: payment.PaymentService.GetPaymentByOrderID:input_type -> payment.GetPaymentRequest
-	3, // 5: payment.PaymentService.CreatePayment:output_type -> payment.CreatePaymentResponse
-	5, // 6: payment.PaymentService.GetPaymentByOrderID:output_type -> payment.GetPaymentResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 3: payment.ListPaymentsResponse.payments:type_name -> payment.Payment
+	2, // 4: payment.PaymentService.ProcessPayment:input_type -> payment.CreatePaymentRequest
+	4, // 5: payment.PaymentService.GetPaymentByOrderID:input_type -> payment.GetPaymentRequest
+	6, // 6: payment.PaymentService.ListPayments:input_type -> payment.ListPaymentsRequest
+	3, // 7: payment.PaymentService.ProcessPayment:output_type -> payment.CreatePaymentResponse
+	5, // 8: payment.PaymentService.GetPaymentByOrderID:output_type -> payment.GetPaymentResponse
+	7, // 9: payment.PaymentService.ListPayments:output_type -> payment.ListPaymentsResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_proto_payment_proto_init() }
-func file_proto_payment_proto_init() {
-	if File_proto_payment_proto != nil {
+func init() { file_payment_proto_init() }
+func file_payment_proto_init() {
+	if File_payment_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_payment_proto_rawDesc), len(file_proto_payment_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_payment_proto_rawDesc), len(file_payment_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_payment_proto_goTypes,
-		DependencyIndexes: file_proto_payment_proto_depIdxs,
-		EnumInfos:         file_proto_payment_proto_enumTypes,
-		MessageInfos:      file_proto_payment_proto_msgTypes,
+		GoTypes:           file_payment_proto_goTypes,
+		DependencyIndexes: file_payment_proto_depIdxs,
+		EnumInfos:         file_payment_proto_enumTypes,
+		MessageInfos:      file_payment_proto_msgTypes,
 	}.Build()
-	File_proto_payment_proto = out.File
-	file_proto_payment_proto_goTypes = nil
-	file_proto_payment_proto_depIdxs = nil
+	File_payment_proto = out.File
+	file_payment_proto_goTypes = nil
+	file_payment_proto_depIdxs = nil
 }

@@ -2,13 +2,12 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v4.25.1
-// source: proto/order.proto
+// source: order.proto
 
 package order
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -38,8 +37,8 @@ type OrderServiceClient interface {
 	GetOrderByID(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 	// GetOrdersByCustomerID retrieves all orders for a customer
 	GetOrdersByCustomerID(ctx context.Context, in *GetOrdersByCustomerRequest, opts ...grpc.CallOption) (*GetOrdersByCustomerResponse, error)
-	// SubscribeToOrderUpdates streams order updates for a specific order
-	SubscribeToOrderUpdates(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (OrderService_SubscribeToOrderUpdatesClient, error)
+	// SubscribeToOrderUpdates streams order status changes for a specific order
+	SubscribeToOrderUpdates(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Order], error)
 }
 
 type orderServiceClient struct {
@@ -80,12 +79,13 @@ func (c *orderServiceClient) GetOrdersByCustomerID(ctx context.Context, in *GetO
 	return out, nil
 }
 
-func (c *orderServiceClient) SubscribeToOrderUpdates(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (OrderService_SubscribeToOrderUpdatesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &OrderService_ServiceDesc.Streams[0], OrderService_SubscribeToOrderUpdates_FullMethodName, opts...)
+func (c *orderServiceClient) SubscribeToOrderUpdates(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Order], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OrderService_ServiceDesc.Streams[0], OrderService_SubscribeToOrderUpdates_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &orderServiceSubscribeToOrderUpdatesClient{stream}
+	x := &grpc.GenericClientStream[GetOrderRequest, Order]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -95,23 +95,8 @@ func (c *orderServiceClient) SubscribeToOrderUpdates(ctx context.Context, in *Ge
 	return x, nil
 }
 
-// OrderService_SubscribeToOrderUpdatesClient is the client API for SubscribeToOrderUpdates server streaming RPC.
-type OrderService_SubscribeToOrderUpdatesClient interface {
-	Recv() (*Order, error)
-	grpc.ClientStream
-}
-
-type orderServiceSubscribeToOrderUpdatesClient struct {
-	grpc.ClientStream
-}
-
-func (x *orderServiceSubscribeToOrderUpdatesClient) Recv() (*Order, error) {
-	m := new(Order)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OrderService_SubscribeToOrderUpdatesClient = grpc.ServerStreamingClient[Order]
 
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
@@ -125,8 +110,8 @@ type OrderServiceServer interface {
 	GetOrderByID(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	// GetOrdersByCustomerID retrieves all orders for a customer
 	GetOrdersByCustomerID(context.Context, *GetOrdersByCustomerRequest) (*GetOrdersByCustomerResponse, error)
-	// SubscribeToOrderUpdates streams order updates for a specific order
-	SubscribeToOrderUpdates(*GetOrderRequest, OrderService_SubscribeToOrderUpdatesServer) error
+	// SubscribeToOrderUpdates streams order status changes for a specific order
+	SubscribeToOrderUpdates(*GetOrderRequest, grpc.ServerStreamingServer[Order]) error
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -146,7 +131,7 @@ func (UnimplementedOrderServiceServer) GetOrderByID(context.Context, *GetOrderRe
 func (UnimplementedOrderServiceServer) GetOrdersByCustomerID(context.Context, *GetOrdersByCustomerRequest) (*GetOrdersByCustomerResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetOrdersByCustomerID not implemented")
 }
-func (UnimplementedOrderServiceServer) SubscribeToOrderUpdates(*GetOrderRequest, OrderService_SubscribeToOrderUpdatesServer) error {
+func (UnimplementedOrderServiceServer) SubscribeToOrderUpdates(*GetOrderRequest, grpc.ServerStreamingServer[Order]) error {
 	return status.Error(codes.Unimplemented, "method SubscribeToOrderUpdates not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
@@ -225,25 +210,15 @@ func _OrderService_GetOrdersByCustomerID_Handler(srv interface{}, ctx context.Co
 }
 
 func _OrderService_SubscribeToOrderUpdates_Handler(srv interface{}, stream grpc.ServerStream) error {
-	in := new(GetOrderRequest)
-	if err := stream.RecvMsg(in); err != nil {
+	m := new(GetOrderRequest)
+	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(OrderServiceServer).SubscribeToOrderUpdates(in, &orderServiceSubscribeToOrderUpdatesServer{stream})
+	return srv.(OrderServiceServer).SubscribeToOrderUpdates(m, &grpc.GenericServerStream[GetOrderRequest, Order]{ServerStream: stream})
 }
 
-type OrderService_SubscribeToOrderUpdatesServer interface {
-	Send(*Order) error
-	grpc.ServerStream
-}
-
-type orderServiceSubscribeToOrderUpdatesServer struct {
-	grpc.ServerStream
-}
-
-func (x *orderServiceSubscribeToOrderUpdatesServer) Send(m *Order) error {
-	return x.ServerStream.SendMsg(m)
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OrderService_SubscribeToOrderUpdatesServer = grpc.ServerStreamingServer[Order]
 
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -272,5 +247,5 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/order.proto",
+	Metadata: "order.proto",
 }
